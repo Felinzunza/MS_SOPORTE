@@ -28,5 +28,6 @@ public class DevolucionService {
 
     public void eliminarDevolucion(int idDevolucion) {
         devolucionRepository.deleteById(idDevolucion);
+        
     }
 }
