@@ -38,7 +38,7 @@ public class Ticket {
     @Column(length = 500, nullable = false)
     private String descripcion;
 
-    @Column(length = 500, nullable = false)
+    @Column(length = 500, nullable = true)
     private String respuesta;
     
     @Enumerated(EnumType.STRING)
@@ -47,9 +47,6 @@ public class Ticket {
     
     @Column(nullable = false)
     private LocalDate fechaCreacion;
-
-    @Column(nullable = false)
-    private boolean hayDevolucion;
 
     @OneToOne
     @JoinColumn(name = "idDevolucion", nullable = true) // Ticket tiene la FK

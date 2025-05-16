@@ -1,30 +1,32 @@
 package com.ECOMARKET_SPA.MS_SOPORTE.model;
 
-import java.time.LocalDate;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
-import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
+@Table(name = "devolucion")
+@AllArgsConstructor
+@NoArgsConstructor
+@Data
 @Entity
 public class Devolucion {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private int idDevolucion;
 
     /*@ManyToOne
-    @JoinColumn(name = "pedido_id", nullable = false)
-    private Pedido pedido;*/
-
-
-    @Column(nullable = false)
-    private LocalDate fecha;
+    @JoinColumn(name = "pedido_id", nullable = false)*/
+    private int idPedido; //Por mientras solo guardamos el id del pedido, no la entidad completa
 
     @OneToOne(mappedBy = "devolucion")
     @JsonBackReference
