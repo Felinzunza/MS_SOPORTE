@@ -49,7 +49,7 @@ public class Ticket {
     private LocalDate fechaCreacion;
 
     @OneToOne
-    @JoinColumn(name = "idDevolucion", nullable = true) // Ticket tiene la FK
+    @JoinColumn(name = "idDevolucion_fk", nullable = true) // Ticket tiene la FK
     @JsonManagedReference
     private Devolucion devolucion;
     
