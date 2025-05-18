@@ -7,11 +7,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ECOMARKET_SPA.MS_SOPORTE.model.EnumEstadoT;
 import com.ECOMARKET_SPA.MS_SOPORTE.model.Ticket;
+import com.ECOMARKET_SPA.MS_SOPORTE.service.DevolucionService;
 import com.ECOMARKET_SPA.MS_SOPORTE.service.TicketService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -23,6 +27,9 @@ public class TicketController {
     
     @Autowired
     private TicketService ticketService;
+
+    @Autowired
+    private DevolucionService devolucionService;
 
     @GetMapping
     public ResponseEntity<List<Ticket>> getAllTickets() {
@@ -44,11 +51,19 @@ public class TicketController {
     }
 
     @PostMapping
-    public ResponseEntity<Ticket>postTicket(@RequestBody Ticket ticket) {
+    public ResponseEntity<Ticket> postTicket(@RequestBody Ticket ticket) {
         Ticket buscado = ticketService.obtenerTicketPorId(ticket.getIdTicket());
         if (buscado == null) {
-            return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.CREATED);
-        }
+
+        // Solo asignamos la devolución desde el repositorio si viene con ID
+        if (ticket.getDevolucion() != null) {
+            ticket.setDevolucion(
+                devolucionService.obtenerDevolucionPorId(ticket.getDevolucion().getIdDevolucion())
+            );
+        } //
+
+        return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.CREATED);
+    } 
         return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
 
@@ -61,5 +76,25 @@ public class TicketController {
         ticketService.eliminarTicket(idTicket);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
-}
 
+    @PatchMapping("/{idTicket}/respuesta") //localhost:8080/api/ticket/1/respuesta?respuesta=Hola
+    public ResponseEntity<Ticket> updateRespuestaTicket(@PathVariable int idTicket, @RequestParam String respuesta) {
+        Ticket ticket = ticketService.obtenerTicketPorId(idTicket);
+        if(ticket == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        ticket.setRespuesta(respuesta);
+        return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.OK);
+    }
+    @PatchMapping("/{idTicket}/cambiarEstado") //http://localhost:8080/api/ticket/1/cambiarEstado?estado=RESUELTO
+    public ResponseEntity<Ticket> updateEstadoTicket(@PathVariable int idTicket, @RequestParam EnumEstadoT estado) {
+        Ticket ticket = ticketService.obtenerTicketPorId(idTicket);
+        if(ticket == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        ticket.setEstadoticket(estado);
+        return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.OK);
+    }
+
+    
+}
