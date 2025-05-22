@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.ECOMARKET_SPA.MS_SOPORTE.model.Devolucion;
@@ -105,18 +106,17 @@ public class DevolucionController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //Cambiar cantidad de un producto de devolucion por id
+    //Cambiar cantidad de un producto de devolucion por id //http://localhost:8083/api/devoluciones/1/productosdevueltos/1?cantidad=5
     @PatchMapping("{id}/productosdevueltos/{idProductoDevolucion}")
-    public ResponseEntity<ProductoDevolucion> updateCantProductoDevolucion(@PathVariable int id, @PathVariable int idProductoDevolucion, @RequestBody ProductoDevolucion producto) {
+    public ResponseEntity<ProductoDevolucion> updateCantProductoDevolucion(@PathVariable int id, @PathVariable int idProductoDevolucion, @RequestParam int cantidad) {
         ProductoDevolucion productodev = devolucionService.obtenerProductoDevolucionPorId(id, idProductoDevolucion);
         if(productodev == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        if(producto.getCantidad() < 0) {
+        if(cantidad < 0) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        productodev.setCantidad(producto.getCantidad());
-        devolucionService.guardarProductoDevolucion(id, productodev);
+        devolucionService.modificarProductoDevolucion(id, idProductoDevolucion, cantidad);
         return new ResponseEntity<>(productodev, HttpStatus.OK);
     }
 }

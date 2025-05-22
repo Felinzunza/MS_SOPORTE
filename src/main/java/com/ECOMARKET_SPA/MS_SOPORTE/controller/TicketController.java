@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("/api/ticket")
+@RequestMapping("/api/tickets")
 public class TicketController {
     
     @Autowired
@@ -86,7 +86,7 @@ public class TicketController {
         ticket.setRespuesta(respuesta);
         return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.OK);
     }
-    @PatchMapping("/{idTicket}/cambiarEstado") //http://localhost:8080/api/ticket/1/cambiarEstado?estado=RESUELTO
+    @PatchMapping("/{idTicket}/cambiarEstado") //http://localhost:8083/api/tickets/10/cambiarEstado?estado=CERRADO
     public ResponseEntity<Ticket> updateEstadoTicket(@PathVariable int idTicket, @RequestParam EnumEstadoT estado) {
         Ticket ticket = ticketService.obtenerTicketPorId(idTicket);
         if(ticket == null) {

@@ -36,7 +36,7 @@ public class Devolucion {
     @JsonBackReference
     private Ticket ticket;
 
-    @OneToMany(mappedBy = "devolucion", cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "devolucion", cascade = CascadeType.ALL, orphanRemoval = true)
     @JsonManagedReference
     private List<ProductoDevolucion> productosDevolucion;
 

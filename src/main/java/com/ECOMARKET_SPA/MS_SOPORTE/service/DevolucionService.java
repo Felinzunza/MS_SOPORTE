@@ -14,6 +14,7 @@ public class DevolucionService {
 
     @Autowired
     private DevolucionRepository devolucionRepository;
+ 
     
     public List<Devolucion> listarDevoluciones() {
         return devolucionRepository.findAll();
@@ -27,10 +28,12 @@ public class DevolucionService {
         return devolucionRepository.findByIdDevolucion(idDevolucion);
     }
 
-    public void eliminarDevolucion(int idDevolucion) {
+    //Una vez que vinculo la devolucion al ticket, no puedo eliminarla, solo se eliminara al eliminar el ticket
+    public void eliminarDevolucion(int idDevolucion) { 
         devolucionRepository.deleteById(idDevolucion);
         
     }
+
     //METODOS PARA PRODUCTO DEVOLUCION
 
     public List<ProductoDevolucion> listarProductosDevolucion(int idDevolucion) {
