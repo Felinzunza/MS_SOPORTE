@@ -13,11 +13,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.ECOMARKET_SPA.MS_SOPORTE.model.Devolucion;
 import com.ECOMARKET_SPA.MS_SOPORTE.model.EnumEstadoT;
+import com.ECOMARKET_SPA.MS_SOPORTE.model.ProductoDevolucion;
 import com.ECOMARKET_SPA.MS_SOPORTE.model.Ticket;
 import com.ECOMARKET_SPA.MS_SOPORTE.service.DevolucionService;
 import com.ECOMARKET_SPA.MS_SOPORTE.service.TicketService;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 
 
@@ -53,19 +56,44 @@ public class TicketController {
     @PostMapping
     public ResponseEntity<Ticket> postTicket(@RequestBody Ticket ticket) {
         Ticket buscado = ticketService.obtenerTicketPorId(ticket.getIdTicket());
-        if (buscado == null) {
+        
+        //Verifica si ya existe un ticket con ese id
+        if (buscado != null) {
+            
+            return new ResponseEntity<>(HttpStatus.CONFLICT);
+        }
 
-        // Solo asignamos la devolución desde el repositorio si viene con ID
+        //Verifica si existe una devolucion en la base de datos antes de enlazarlo
         if (ticket.getDevolucion() != null) {
-            ticket.setDevolucion(
-                devolucionService.obtenerDevolucionPorId(ticket.getDevolucion().getIdDevolucion())
-            );
-        } //
-
+            Devolucion devolucion = ticket.getDevolucion();
+            
+            //caso 1: el ticket viene con una devolucion ya existente (solo se referencia el id de la devolucion al crear el ticket)
+            if (devolucion.getIdDevolucion() != 0) {
+                Devolucion devexistente = devolucionService.obtenerDevolucionPorId(devolucion.getIdDevolucion());
+                if (devexistente == null) {
+                    return new ResponseEntity<>(HttpStatus.CONFLICT);
+                    
+                } 
+                
+                //verifica si ya hay una devolucion asociada al ticket
+                Ticket yaHaydevolucionasociada = ticketService.obtenerIdDeDevolucion(devolucion.getIdDevolucion());
+                if (yaHaydevolucionasociada != null) {
+                    
+                    return new ResponseEntity<>(HttpStatus.CONFLICT); // Ya está asociada
+                }
+                ticket.setDevolucion(devexistente);
+                
+            }
+            // Caso 2: el ticket viene con una devolución nueva y productos dentro (se crea todo a la vez al crear el ticket: ticket, devolucion, productos dentro)
+            else if (devolucion.getProductosDevolucion() != null){
+                for (ProductoDevolucion p : devolucion.getProductosDevolucion()){ 
+                    p.setDevolucion(devolucion);  
+                }         
+            }    
+        }
         return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.CREATED);
-    } 
-        return new ResponseEntity<>(HttpStatus.CONFLICT);
-    }
+    
+}
 
     @DeleteMapping("/{idTicket}")
     public ResponseEntity<Void> deleteTicket(@PathVariable int idTicket) {
@@ -77,7 +105,7 @@ public class TicketController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    @PatchMapping("/{idTicket}/respuesta") //localhost:8080/api/ticket/1/respuesta?respuesta=Hola
+    @PatchMapping("/{idTicket}/respuesta") //localhost:8083/api/ticket/1/respuesta?respuesta=Hola
     public ResponseEntity<Ticket> updateRespuestaTicket(@PathVariable int idTicket, @RequestParam String respuesta) {
         Ticket ticket = ticketService.obtenerTicketPorId(idTicket);
         if(ticket == null) {
@@ -96,5 +124,48 @@ public class TicketController {
         return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.OK);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<Ticket> updateTicket(@PathVariable int id, @RequestBody Ticket ticket) {
+        Ticket buscado = ticketService.obtenerTicketPorId(id);
+        if (buscado == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        //Verifica si existe una devolucion en la base de datos antes de enlazarlo
+        if (ticket.getDevolucion() != null) {
+            Devolucion devolucion = ticket.getDevolucion();
+            
+            //caso 1: el ticket viene con una devolucion ya existente (solo se referencia el id de la devolucion al crear el ticket)
+            if (devolucion.getIdDevolucion() != 0) {
+
+                //Verifica si el id de la devolucion que se quiere guardar esta en la base de datos
+                Devolucion devexistente = devolucionService.obtenerDevolucionPorId(devolucion.getIdDevolucion());
+                if (devexistente == null) {
+                    return new ResponseEntity<>(HttpStatus.CONFLICT);
+                    
+                } 
+                // Verifica si ya hay un ticket usando esa devolución
+                Ticket yaHaydevolucionasociada = ticketService.obtenerIdDeDevolucion(devolucion.getIdDevolucion());
+                if (yaHaydevolucionasociada != null) {
+                    
+                    return new ResponseEntity<>(HttpStatus.CONFLICT); // Ya está asociada
+                }
+                ticket.setDevolucion(devexistente);
+                
+            }
+            // Caso 2: el ticket viene con una devolución nueva y productos dentro (se crea todo a la vez al crear el ticket: ticket, devolucion, productos dentro)
+            else if (devolucion.getProductosDevolucion() != null){
+                for (ProductoDevolucion p : devolucion.getProductosDevolucion()){ 
+                    p.setDevolucion(devolucion);  
+                }         
+            }    
+        }
+        ticket.setIdTicket(id); // Asegúrate de que el ID se mantenga igual
+        return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.OK);
+    }
+
+
+
+    
     
 }

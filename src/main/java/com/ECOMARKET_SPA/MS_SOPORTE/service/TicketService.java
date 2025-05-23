@@ -22,16 +22,20 @@ public class TicketService {
         return ticketRepository.findByIdTicket(idTicket);
     }
 
+    public Ticket obtenerIdDeDevolucion(int idDevolucion){
+        return ticketRepository.findByDevolucion_IdDevolucion(idDevolucion);
+    }
+
     public Ticket crearTicket(Ticket ticket) {
         return ticketRepository.save(ticket);
     }
 
-    /*public Ticket actualizarTicket(Ticket ticket) {
-        return ticketRepository.save(ticket);
-    }*/
+    
 
     public void eliminarTicket(int idTicket) {
         ticketRepository.deleteById(idTicket);
     }
+
+    //Talvez un put estaria bien
 
 }
