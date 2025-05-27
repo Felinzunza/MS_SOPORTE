@@ -22,6 +22,11 @@ public class TicketService {
         return ticketRepository.findByIdTicket(idTicket);
     }
 
+    public List<Ticket> obtenerTicketsPorRut(String rutCliente) {
+        return ticketRepository.findByRutCliente(rutCliente);
+    }
+
+
     public Ticket obtenerIdDeDevolucion(int idDevolucion){
         return ticketRepository.findByDevolucion_IdDevolucion(idDevolucion);
     }
@@ -36,6 +41,5 @@ public class TicketService {
         ticketRepository.deleteById(idTicket);
     }
 
-    //Talvez un put estaria bien
 
 }

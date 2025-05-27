@@ -52,6 +52,16 @@ public class TicketController {
         return new ResponseEntity<>(ticket, HttpStatus.OK);
     }
 
+    @GetMapping("/rut/{rutCliente}")
+    public ResponseEntity<List<Ticket>> getTicketsByRut(@PathVariable String rutCliente) {
+    List<Ticket> tickets = ticketService.obtenerTicketsPorRut(rutCliente);
+    if (tickets.isEmpty()) {
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    return new ResponseEntity<>(tickets, HttpStatus.OK);
+    }
+
+
     @PostMapping
     public ResponseEntity<Ticket> postTicket(@RequestBody Ticket ticket) {
         Ticket buscado = ticketService.obtenerTicketPorId(ticket.getIdTicket());
