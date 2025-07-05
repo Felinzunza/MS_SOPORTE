@@ -44,24 +44,6 @@ public class DevolucionController {
         return new ResponseEntity<>(devolucion, HttpStatus.OK);
     }
 
-    /*@PostMapping //se evalua sacar devolucion para evitar tener devoluciones huerfanas
-    public ResponseEntity<Devolucion> postDevolucion(@RequestBody Devolucion devolucion) {
-        Devolucion buscado = devolucionService.obtenerDevolucionPorId(devolucion.getIdDevolucion());
-        if (buscado == null) {
-            return new ResponseEntity<>(devolucionService.guardarDevolucion(devolucion), HttpStatus.CREATED);
-        }
-        return new ResponseEntity<>(HttpStatus.CONFLICT);
-    } */
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteDevolucion(@PathVariable int id) {
-        Devolucion devolucion = devolucionService.obtenerDevolucionPorId(id);
-        if(devolucion == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        devolucionService.eliminarDevolucion(id);
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-    }
 
     @GetMapping("{id}/productosdevueltos")
     public ResponseEntity<List<ProductoDevolucion>> getAllProductosDevolucion(@PathVariable int id) {

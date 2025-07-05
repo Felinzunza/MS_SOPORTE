@@ -80,47 +80,6 @@ public ResponseEntity<Ticket> postTicket(@RequestBody Ticket ticket) {
 }
 
 
-    /*@PostMapping
-    public ResponseEntity<Ticket> postTicket(@RequestBody Ticket ticket) {
-        Ticket buscado = ticketService.obtenerTicketPorId(ticket.getIdTicket());
-        
-        //Verifica si ya existe un ticket con ese id
-        if (buscado != null) {
-            
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-
-        //Verifica si existe una devolucion en la base de datos antes de enlazarlo
-        if (ticket.getDevolucion() != null) {
-            Devolucion devolucion = ticket.getDevolucion();
-            
-            //caso 1: el ticket viene con una devolucion ya existente (solo se referencia el id de la devolucion al crear el ticket)
-            if (devolucion.getIdDevolucion() != 0) {
-                Devolucion devexistente = devolucionService.obtenerDevolucionPorId(devolucion.getIdDevolucion());
-                if (devexistente == null) {
-                    return new ResponseEntity<>(HttpStatus.CONFLICT);
-                    
-                } 
-                
-                //verifica si ya hay una devolucion asociada al ticket
-                Ticket yaHaydevolucionasociada = ticketService.obtenerIdDeDevolucion(devolucion.getIdDevolucion());
-                if (yaHaydevolucionasociada != null) {
-                    
-                    return new ResponseEntity<>(HttpStatus.CONFLICT); // Ya está asociada
-                }
-                ticket.setDevolucion(devexistente);
-                
-            }
-            // Caso 2: el ticket viene con una devolución nueva y productos dentro (se crea todo a la vez al crear el ticket: ticket, devolucion, productos dentro)
-            else if (devolucion.getProductosDevolucion() != null){
-                for (ProductoDevolucion p : devolucion.getProductosDevolucion()){ 
-                    p.setDevolucion(devolucion);  
-                }         
-            }    
-        }
-        return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.CREATED);
-    
-}*/
 
     @DeleteMapping("/{idTicket}")
     public ResponseEntity<Void> deleteTicket(@PathVariable int idTicket) {
@@ -151,42 +110,31 @@ public ResponseEntity<Ticket> postTicket(@RequestBody Ticket ticket) {
         return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.OK);
     }
 
-    //ENLAZAR http://localhost:8083/api/tickets/5/devolucion?idDevolucion=2
-    //DESENLAZAR http://localhost:8083/api/tickets/5/devolucion
-   /*@PatchMapping("/{idTicket}/devolucion")
-    public ResponseEntity<Ticket> modificarDevolucion(
-        @PathVariable int idTicket,
-        @RequestParam(required = false) Integer idDevolucion) {
+    @DeleteMapping("/{idTicket}/devoluciones")
+    public ResponseEntity<Void> eliminarSoloLaDevolucion(@PathVariable int idTicket) {
+    boolean exito = ticketService.eliminarSoloLaDevolucion(idTicket);
 
-    Ticket ticket = ticketService.obtenerTicketPorId(idTicket);
-    if (ticket == null) {
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
-
-    // Desenlazar si no se envía idDevolucion
-    if (idDevolucion == null) {
-        ticket.setDevolucion(null);
+    if (exito) {
+        return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204: Eliminado con éxito
     } else {
-        // Verificar que la devolución exista
-        Devolucion devolucion = devolucionService.obtenerDevolucionPorId(idDevolucion);
-        if (devolucion == null) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
-
-        // Verificar que no esté ya asociada a otro ticket
-        Ticket yaExiste = ticketService.obtenerIdDeDevolucion(idDevolucion);
-        if (yaExiste != null && yaExiste.getIdTicket() != idTicket) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT);
-        }
-
-        ticket.setDevolucion(devolucion);
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // 404: No se encontró el ticket o no tiene devolución
+    }
     }
 
-    return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.OK);
-}*/
+    @PostMapping("/{idTicket}/devolucion")
+    public ResponseEntity<Devolucion> crearDevolucion(@PathVariable int idTicket, @RequestBody Devolucion devolucion) {
+        Devolucion creada = ticketService.agregarDevolucionAlTicket(idTicket, devolucion);
+        
+        if (creada == null) {
+            return new ResponseEntity<>(HttpStatus.CONFLICT); // Ya tiene devolución
+        }
+
+        return new ResponseEntity<>(creada, HttpStatus.CREATED);
+    }
+
+
 
 }
-
 
 
     
