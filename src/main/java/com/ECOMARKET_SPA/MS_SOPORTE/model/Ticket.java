@@ -29,6 +29,9 @@ public class Ticket {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idTicket;
+
+    @Column(length = 10, nullable = false)
+    private int idTienda;
     
     @Column(length = 12, nullable = false)
     private String rutCliente;

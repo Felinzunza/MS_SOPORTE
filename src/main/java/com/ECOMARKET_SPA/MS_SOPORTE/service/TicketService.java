@@ -29,7 +29,7 @@ public class TicketService {
 
     public Ticket obtenerIdDeDevolucion(int idDevolucion){
         return ticketRepository.findByDevolucion_IdDevolucion(idDevolucion);
-    }
+    } 
 
     public Ticket crearTicket(Ticket ticket) {
         return ticketRepository.save(ticket);

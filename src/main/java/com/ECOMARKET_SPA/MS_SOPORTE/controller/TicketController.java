@@ -30,8 +30,8 @@ public class TicketController {
     @Autowired
     private TicketService ticketService;
 
-    @Autowired
-    private DevolucionService devolucionService;
+    /*@Autowired
+    private DevolucionService devolucionService;*/
 
     @GetMapping
     public ResponseEntity<List<Ticket>> getAllTickets() {
@@ -61,8 +61,26 @@ public class TicketController {
     return new ResponseEntity<>(tickets, HttpStatus.OK);
     }
 
-
     @PostMapping
+public ResponseEntity<Ticket> postTicket(@RequestBody Ticket ticket) {
+    // Si ya existe un ticket con ese ID, devuelve conflicto
+    if (ticketService.obtenerTicketPorId(ticket.getIdTicket()) != null) {
+        return new ResponseEntity<>(HttpStatus.CONFLICT);
+    }
+
+    // Manejo de devolución si viene como parte del ticket
+    Devolucion devolucion = ticket.getDevolucion();
+    if (devolucion != null && devolucion.getProductosDevolucion() != null) {
+        for (ProductoDevolucion p : devolucion.getProductosDevolucion()) {
+            p.setDevolucion(devolucion); // Establece la relación inversa
+        }
+    }
+
+    return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.CREATED);
+}
+
+
+    /*@PostMapping
     public ResponseEntity<Ticket> postTicket(@RequestBody Ticket ticket) {
         Ticket buscado = ticketService.obtenerTicketPorId(ticket.getIdTicket());
         
@@ -102,7 +120,7 @@ public class TicketController {
         }
         return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.CREATED);
     
-}
+}*/
 
     @DeleteMapping("/{idTicket}")
     public ResponseEntity<Void> deleteTicket(@PathVariable int idTicket) {
@@ -135,7 +153,7 @@ public class TicketController {
 
     //ENLAZAR http://localhost:8083/api/tickets/5/devolucion?idDevolucion=2
     //DESENLAZAR http://localhost:8083/api/tickets/5/devolucion
-   @PatchMapping("/{idTicket}/devolucion")
+   /*@PatchMapping("/{idTicket}/devolucion")
     public ResponseEntity<Ticket> modificarDevolucion(
         @PathVariable int idTicket,
         @RequestParam(required = false) Integer idDevolucion) {
@@ -165,7 +183,7 @@ public class TicketController {
     }
 
     return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.OK);
-}
+}*/
 
 }
 

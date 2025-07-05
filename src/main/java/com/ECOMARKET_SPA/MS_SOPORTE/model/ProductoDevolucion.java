@@ -2,6 +2,7 @@ package com.ECOMARKET_SPA.MS_SOPORTE.model;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,8 +25,10 @@ public class ProductoDevolucion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idProductoDevolucion;
 
-    private int cod_Producto;
+    @Column(length = 10, nullable = false)
+    private Integer codProducto;
 
+    @Column(nullable = false)
     private int cantidad;
 
     @ManyToOne

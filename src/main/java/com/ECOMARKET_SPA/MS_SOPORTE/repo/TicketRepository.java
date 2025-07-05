@@ -14,6 +14,6 @@ public interface TicketRepository extends JpaRepository<Ticket, Integer> {
 
     List<Ticket>findByRutCliente(String rutCliente);
 
-    Ticket findByDevolucion_IdDevolucion(int idDevolucion);;
+    Ticket findByDevolucion_IdDevolucion(int idDevolucion); 
 
 }

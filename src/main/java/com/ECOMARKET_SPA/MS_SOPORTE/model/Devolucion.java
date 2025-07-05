@@ -29,8 +29,8 @@ public class Devolucion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idDevolucion;
 
-    @Column(nullable = true)
-    private int idPedido;
+    @Column(nullable = false)
+    private long idPedido;
 
     @OneToOne(mappedBy = "devolucion")
     @JsonBackReference
