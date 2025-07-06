@@ -20,85 +20,75 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("/api/devoluciones")
+@RequestMapping("/api/tickets/{ticketId}/devolucion")
 public class DevolucionController {
-    
+
     @Autowired
     private DevolucionService devolucionService;
 
     @GetMapping
-    public ResponseEntity<List<Devolucion>> getAllDevoluciones() {
-        List<Devolucion> devoluciones = devolucionService.listarDevoluciones();
-        if(devoluciones.isEmpty()) {
+    public ResponseEntity<Devolucion> getDevolucionPorTicket(@PathVariable int ticketId) {
+    Devolucion devolucion = devolucionService.obtenerDevolucionPorTicket(ticketId);
+    if (devolucion == null) {
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+    return new ResponseEntity<>(devolucion, HttpStatus.OK);
+}
+
+    // Listar productos devueltos de la devolución del ticket
+    @GetMapping("/productos")
+    public ResponseEntity<List<ProductoDevolucion>> getAllProductosDevolucion(@PathVariable int ticketId) {
+        List<ProductoDevolucion> productos = devolucionService.listarProductosDevolucionPorTicket(ticketId);
+        if (productos == null || productos.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
-        return new ResponseEntity<>(devoluciones, HttpStatus.OK);
-    }
-
-    @GetMapping("/{id}")
-    public ResponseEntity<Devolucion> getDevolucionById(@PathVariable int id) {
-        Devolucion devolucion = devolucionService.obtenerDevolucionPorId(id);
-        if(devolucion == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        return new ResponseEntity<>(devolucion, HttpStatus.OK);
-    }
-
-
-    @GetMapping("{id}/productosdevueltos")
-    public ResponseEntity<List<ProductoDevolucion>> getAllProductosDevolucion(@PathVariable int id) {
-        List<ProductoDevolucion> productos = devolucionService.listarProductosDevolucion(id);
-        if(productos == null || productos.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(productos, HttpStatus.OK);
     }
 
-    //Agregar un producto a la devolucion
-    @PostMapping("{id}/productosdevueltos")
-    public ResponseEntity<ProductoDevolucion> postProductoDevolucion(@PathVariable int id, @RequestBody ProductoDevolucion nuevoproducto) {
-        Devolucion devolucion = devolucionService.guardarProductoDevolucion(id, nuevoproducto);
-        if(devolucion == null) {
+    // Agregar producto a devolución
+    @PostMapping("/productos")
+    public ResponseEntity<ProductoDevolucion> postProductoDevolucion(@PathVariable int ticketId, @RequestBody ProductoDevolucion nuevoProducto) {
+        ProductoDevolucion creado = devolucionService.agregarProductoDevolucion(ticketId, nuevoProducto);
+        if (creado == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(nuevoproducto, HttpStatus.CREATED);
-
+        return new ResponseEntity<>(creado, HttpStatus.CREATED);
     }
 
-
-    //Buscar un producto de devolucion por id
-    @GetMapping("{id}/productosdevueltos/{idProductoDevolucion}")
-    public ResponseEntity<ProductoDevolucion> getProductoDevolucionById(@PathVariable int id, @PathVariable int idProductoDevolucion) {
-        ProductoDevolucion producto = devolucionService.obtenerProductoDevolucionPorId(id, idProductoDevolucion);
-        if(producto == null) {
+    // Obtener producto devuelto por ID
+    @GetMapping("/productos/{idProducto}")
+    public ResponseEntity<ProductoDevolucion> getProductoDevolucionById(@PathVariable int ticketId, @PathVariable int idProducto) {
+        ProductoDevolucion producto = devolucionService.obtenerProductoDevolucionPorId(ticketId, idProducto);
+        if (producto == null) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-         return new ResponseEntity<>(producto, HttpStatus.OK);
-     }
+        return new ResponseEntity<>(producto, HttpStatus.OK);
+    }
 
-
-    //Eliminar un producto de devolucion por id
-    @DeleteMapping("{id}/productosdevueltos/{idProductoDevolucion}")
-    public ResponseEntity<Void> deleteProductoDevolucion(@PathVariable int id, @PathVariable int idProductoDevolucion) {
-        ProductoDevolucion producto = devolucionService.obtenerProductoDevolucionPorId(id, idProductoDevolucion);
-        if(producto == null) {
+    // Eliminar producto devuelto
+    @DeleteMapping("/productos/{idProducto}")
+    public ResponseEntity<Void> deleteProductoDevolucion(@PathVariable int ticketId, @PathVariable int idProducto) {
+        boolean eliminado = devolucionService.eliminarProductoDevolucion(ticketId, idProducto);
+        if (!eliminado) {
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        devolucionService.eliminarProductoDevolucion(id, idProductoDevolucion);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //Cambiar cantidad de un producto de devolucion por id //http://localhost:8083/api/devoluciones/1/productosdevueltos/1?cantidad=5
-    @PatchMapping("{id}/productosdevueltos/{idProductoDevolucion}")
-    public ResponseEntity<ProductoDevolucion> updateCantProductoDevolucion(@PathVariable int id, @PathVariable int idProductoDevolucion, @RequestParam int cantidad) {
-        ProductoDevolucion productodev = devolucionService.obtenerProductoDevolucionPorId(id, idProductoDevolucion);
-        if(productodev == null) {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-        if(cantidad < 0) {
+    // Modificar cantidad de producto devuelto
+    @PatchMapping("/productos/{idProducto}")
+    public ResponseEntity<ProductoDevolucion> updateCantProductoDevolucion(@PathVariable int ticketId,
+                                                                            @PathVariable int idProducto,
+                                                                            @RequestParam int cantidad) {
+        if (cantidad < 0) {
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
-        devolucionService.modificarProductoDevolucion(id, idProductoDevolucion, cantidad);
-        return new ResponseEntity<>(productodev, HttpStatus.OK);
+
+        ProductoDevolucion actualizado = devolucionService.modificarCantidadProducto(ticketId, idProducto, cantidad);
+        if (actualizado == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        return new ResponseEntity<>(actualizado, HttpStatus.OK);
     }
 }

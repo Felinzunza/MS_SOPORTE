@@ -25,7 +25,7 @@ public class ProductoDevolucion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int idProductoDevolucion;
 
-    @Column(length = 10, nullable = false)
+    @Column(name = "cod_producto", length = 10, nullable = false)
     private Integer codProducto;
 
     @Column(nullable = false)

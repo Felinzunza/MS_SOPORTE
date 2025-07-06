@@ -110,28 +110,6 @@ public ResponseEntity<Ticket> postTicket(@RequestBody Ticket ticket) {
         return new ResponseEntity<>(ticketService.crearTicket(ticket), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{idTicket}/devoluciones")
-    public ResponseEntity<Void> eliminarSoloLaDevolucion(@PathVariable int idTicket) {
-    boolean exito = ticketService.eliminarSoloLaDevolucion(idTicket);
-
-    if (exito) {
-        return new ResponseEntity<>(HttpStatus.NO_CONTENT); // 204: Eliminado con éxito
-    } else {
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);  // 404: No se encontró el ticket o no tiene devolución
-    }
-    }
-
-    @PostMapping("/{idTicket}/devolucion")
-    public ResponseEntity<Devolucion> crearDevolucion(@PathVariable int idTicket, @RequestBody Devolucion devolucion) {
-        Devolucion creada = ticketService.agregarDevolucionAlTicket(idTicket, devolucion);
-        
-        if (creada == null) {
-            return new ResponseEntity<>(HttpStatus.CONFLICT); // Ya tiene devolución
-        }
-
-        return new ResponseEntity<>(creada, HttpStatus.CREATED);
-    }
-
 
 
 }
